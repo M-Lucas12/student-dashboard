@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Life Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- NAME GATE (shows first) -->
+<div id="nameGate" class="gate hidden">
+    <div class="gate-card">
+        <div class="gate-logo">SL</div>
+        <h1>Welcome 👋</h1>
+        <p class="muted">What should we call you?</p>
+        <form id="nameForm" class="row">
+            <input id="studentNameInput" type="text" placeholder="e.g. Lucas" maxlength="24" required />
+            <button type="submit">Continue</button>
+        </form>
+        <p class="muted small">Your name is saved on this device.</p>
+    </div>
+</div>
+
+<div class="app" id="appRoot">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">SL</div>
+            <div>
+                <div class="title">Student Life</div>
+                <div class="subtitle">Dashboard</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <button class="nav-btn active" data-view="home">Home</button>
+            <button class="nav-btn" data-view="tasks">Tasks</button>
+            <button class="nav-btn" data-view="schedule">Schedule</button>
+            <button class="nav-btn" data-view="calendar">Calendar</button>
+            <button class="nav-btn" data-view="grades">Grades</button>
+            <button class="nav-btn" data-view="notes">Notes</button>
+            <button class="nav-btn" data-view="creator">Creator</button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="clearAll" class="danger">Clear all data</button>
+            <p class="hint">Saved on this device</p>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <div id="greeting" class="greeting">Hey — 👋</div>
+                <h1 id="pageTitle">Home</h1>
+            </div>
+
+            <div class="topbar-right">
+                <div class="notify">
+                    <label class="checkbox">
+                        <input type="checkbox" id="enableNotifications" />
+                        Reminders
+                    </label>
+                </div>
+                <span id="today"></span>
+            </div>
+        </header>
+
+        <!-- HOME -->
+        <section class="view" id="view-home">
+            <div class="grid">
+                <div class="card">
+                    <h2>Quick Add Task</h2>
+                    <form id="quickTaskForm" class="grid-3">
+                        <input id="quickTaskInput" type="text" placeholder="e.g. Finish math homework" required />
+                        <input id="quickTaskDue" type="date" />
+                        <select id="quickTaskPriority">
+                            <option value="low">Low</option>
+                            <option value="med" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <button type="submit" class="span-3">Add</button>
+                    </form>
+                    <p class="muted">Tip: tasks save automatically.</p>
+                </div>
+
+                <div class="card">
+                    <h2>Next Up</h2>
+                    <ul id="nextUpList" class="list"></ul>
+                    <p id="nextUpEmpty" class="muted">Add schedule items or tasks due soon.</p>
+                </div>
+
+                <div class="card">
+                    <h2>Grades Snapshot</h2>
+                    <div id="gradesSummary" class="summary"></div>
+                    <canvas id="gradeChartHome" height="120"></canvas>
+                    <p id="gradesEmpty" class="muted">Add grades to see your average.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TASKS -->
+        <section class="view hidden" id="view-tasks">
+            <div class="card">
+                <div class="row row-split">
+                    <h2>Tasks</h2>
+                    <button id="sortTasks" class="ghost">Sort (due/priority)</button>
+                </div>
+
+                <form id="taskForm" class="grid-3">
+                    <input id="taskInput" type="text" placeholder="Add a task..." required />
+                    <input id="taskDue" type="date" />
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="med" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <button type="submit" class="span-3">Add</button>
+                </form>
+
+                <div class="row row-split">
+                    <label class="checkbox">
+                        <input type="checkbox" id="hideCompleted" />
+                        Hide completed
+                    </label>
+                    <button id="clearCompleted" class="ghost">Clear completed</button>
+                </div>
+
+                <ul id="taskList" class="list"></ul>
+                <p id="taskEmpty" class="muted">No tasks yet. Add one above.</p>
+            </div>
+        </section>
+
+        <!-- SCHEDULE -->
+        <section class="view hidden" id="view-schedule">
+            <div class="card">
+                <h2>Schedule</h2>
+
+                <form id="scheduleForm" class="grid-3">
+                    <input id="eventTitle" type="text" placeholder="Event (e.g. Practice)" required />
+                    <input id="eventDate" type="date" required />
+                    <input id="eventTime" type="time" required />
+                    <button type="submit" class="span-3">Add to schedule</button>
+                </form>
+
+                <ul id="scheduleList" class="list"></ul>
+                <p id="scheduleEmpty" class="muted">No events yet. Add one above.</p>
+            </div>
+        </section>
+
+        <!-- CALENDAR (WEEK VIEW) -->
+        <section class="view hidden" id="view-calendar">
+            <div class="card">
+                <div class="row row-split">
+                    <h2>Weekly Calendar</h2>
+                    <div class="row">
+                        <button id="weekPrev" class="ghost">←</button>
+                        <div class="pill" id="weekLabel">Week</div>
+                        <button id="weekNext" class="ghost">→</button>
+                    </div>
+                </div>
+
+                <div id="weekGrid" class="week-grid"></div>
+                <p class="muted small">Double-click a day to quick-add an event. Click an event to delete.</p>
+            </div>
+        </section>
+
+        <!-- GRADES -->
+        <section class="view hidden" id="view-grades">
+            <div class="card">
+                <div class="row row-split">
+                    <h2>Grades</h2>
+                    <button id="clearGrades" class="ghost">Clear grades</button>
+                </div>
+
+                <form id="gradeForm" class="grid-3">
+                    <input id="courseName" type="text" placeholder="Class (e.g. English)" required />
+                    <input id="courseGrade" type="number" min="0" max="100" placeholder="Grade %" required />
+                    <select id="courseWeight">
+                        <option value="1">Weight 1x</option>
+                        <option value="1.5">Weight 1.5x</option>
+                        <option value="2">Weight 2x</option>
+                    </select>
+                    <button type="submit" class="span-3">Add grade</button>
+                </form>
+
+                <div class="row row-split" style="margin-top:12px;">
+                    <div class="pill" id="avgPill">Average: —</div>
+                    <div class="pill" id="countPill">Courses: 0</div>
+                </div>
+
+                <canvas id="gradeChart" height="180"></canvas>
+
+                <ul id="gradeList" class="list"></ul>
+                <p id="gradeEmpty" class="muted">No grades yet. Add one above.</p>
+            </div>
+        </section>
+
+        <!-- NOTES -->
+        <section class="view hidden" id="view-notes">
+            <div class="card">
+                <h2>Notes</h2>
+                <textarea id="notesArea" rows="10" placeholder="Study plan, reminders, anything..."></textarea>
+                <p class="muted">Auto-saves as you type.</p>
+            </div>
+        </section>
+
+        <!-- CREATOR -->
+        <section class="view hidden" id="view-creator">
+            <div class="card creator-card">
+                <div class="creator-top">
+                    <img class="creator-img" src="Images/creator.JPG" alt="Creator photo">
+                    <div class="creator-meta">
+                        <h2 class="creator-name">Lucas</h2>
+                        <p class="creator-tag">Creator of Student Life Dashboard</p>
+                        <div class="creator-badges">
+                            <span class="pill">HTML</span>
+                            <span class="pill">CSS</span>
+                            <span class="pill">JavaScript</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="creator-about">
+                    <h3>About me</h3>
+                    <p>
+                        Hello and welcome. My name is <strong>Lucas Muteta</strong>, and I am the creator of the Student Life Dashboard.
+                        I built this project to help students organize their academic life in a simple and efficient way bringing
+                        tasks, schedules, grades, and notes together in one clean and easy-to-use interface.
+                    </p>
+
+                    <p>
+                        I enjoy building projects, learning new technologies, and creating things that are both functional and visually clean.
+                        This dashboard is one of the projects I developed while exploring web development and improving my programming skills.
+                        Feel free to explore the project and even learn from it if you would like, just remember who built it🤨.
+                    </p>
+
+                    <p>
+                        Outside of programming, I am also involved in financial markets. I actively trade forex and invest in stocks,
+                        indexes, and cryptocurrencies. I enjoy studying market behavior, strategy development, and long-term investing.
+                    </p>
+
+                    <p>
+                        In my free time I enjoy staying active and spending time with people around me. Some of the things I like doing
+                        include boxing, listening to music, visiting friends, and occasionally going out for a drink (😏).
+                        And yes I’m currently single 👀.
+                    </p>
+                    <div class="creator-links">
+                        <h3>Links</h3>
+
+                        <p>
+                            Instagram:
+                            <a href="https://www.instagram.com/lucas_.mtt?igsh=aHNoeHNnZzN6MHZv" target="_blank">
+                                @lucas_.mtt
+                            </a>
+                            <br><br>
+
+                            GitHub:
+                            <a href="https://github.com/M-Lucas12" target="_blank">
+                                github.com/M-Lucas12
+                            </a>
+                            <br><br>
+
+                            Email:
+                            <a href="lucasmuteta@gmail.com">
+                                lucasmutea@gmail.com
+                            </a>
+                        </p>
+
+                    </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
