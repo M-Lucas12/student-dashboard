@@ -344,3 +344,15 @@ button.danger{
     }
 
 }
+/* Force creator image to be a circle and not huge */
+#view-creator .creator-top img{
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  flex-shrink: 0 !important;
+  border: 3px solid rgba(124,92,255,.8) !important;
+  background: #1b233a !important;
+  display: block !important;
+}
